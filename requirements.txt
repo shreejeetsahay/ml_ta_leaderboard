@@ -1,0 +1,16 @@
+# Web & API
+Flask
+Werkzeug
+requests
+
+# Data & utils
+pandas
+numpy
+
+# Database
+SQLAlchemy
+
+# ML / Vision
+pytorch
+torchvision
+Pillow

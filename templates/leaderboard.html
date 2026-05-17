@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CS 4774 — HW 2 - Public Leaderboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style> body { font-family: 'Roboto', sans-serif; } </style>
+</head>
+<body class="bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-700 min-h-screen flex flex-col items-center font-sans py-10">
+  <header class="mt-8 mb-6 text-center text-white">
+    <h1 class="text-4xl font-bold drop-shadow-lg">🏆 Public Leaderboard 🏆</h1>
+  </header>
+
+  <main class="w-full max-w-5xl bg-white/90 rounded-2xl shadow-lg p-6 backdrop-blur-sm">
+    <table class="w-full text-left table-auto border-collapse">
+      <thead>
+        <tr class="bg-gradient-to-r from-purple-400 to-indigo-400 text-white">
+          <th class="p-3 rounded-tl-lg">Rank</th>
+          <th class="p-3">Team</th>
+          <th class="p-3">Weighted Score</th>
+          <th class="p-3">Latent Dim</th>
+          <th class="p-3">Full MSE </th>
+          <th class="p-3">ROI-MSE </th>
+          <th class="p-3">Model Size (MB)</th>
+          <th class="p-3 rounded-tr-lg">Submitted At (ET)</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-200 bg-white">
+        {% for row in results %}
+        <tr class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="p-3 font-semibold text-center">{{ loop.index }}</td>
+          <td class="p-3">{{ row.team_name }}</td>
+          <td class="p-3">
+            {% if row.weighted_score is not none %}
+              {{ '%.3f' % row.weighted_score }}
+            {% else %}
+              N/A
+            {% endif %}
+          </td>
+
+          <td class="p-3">{{ row.latent_dim if row.latent_dim is not none else 'N/A' }}</td>
+          <td class="p-3">{{ '%.6f' % row.public_full_mse if row.public_full_mse is not none else 'N/A' }}</td>
+          <td class="p-3">{{ '%.6f' % row.public_roi_mse if row.public_roi_mse is not none else 'N/A' }}</td>
+          <td class="p-3">{{ '%.2f' % row.model_size if row.model_size is not none else 'N/A' }}</td>
+          <td class="p-3 text-gray-600">{{ row.submitted_at }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="mt-4 text-sm text-gray-600">
+      <p><b>Full MSE</b>: mean squared error over entire 256×256 frame.</p>
+      <p><b>ROI-MSE</b>: MSE averaged only over annotated traffic-light pixels</p>
+      <p><b>Weighted Score</b>: 40% Latent Dim, 35% Full MSE, 20% ROI-MSE, 5% Model Size. Lower raw metrics are better; scores are normalized to [0,1] using fixed caps.</p>
+    </div>
+  </main>
+
+  <footer class="mt-10 text-white/90">
+    &copy; {{ current_year }} University of Virginia · CS 4774 Machine Learning
+  </footer>
+</body>
+</html>

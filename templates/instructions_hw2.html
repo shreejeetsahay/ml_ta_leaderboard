@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Instructions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-700 min-h-screen flex flex-col items-center font-sans py-10">
+  <div class="max-w-6xl mx-auto py-12 px-6">
+
+    <header class="mt-8 mb-6 text-center text-white">
+        <h1 class="text-4xl font-bold drop-shadow-lg">🏆 CS 4774 Machine Learning 🏆</h1>
+        <p class="mt-1 text-lg opacity-90">University of Virginia - Computer Science</p>
+        <p class="mt-2 text-lg opacity-90">Homework 2 — <span class="text-yellow-400"><strong>Traffic Light Autoencoder</strong></span></p>
+        <p class="mt-1 text-sm opacity-80">Instructor: Dr. Hadi Daneshmand | TA: Shreejeet Sahay (rge9ts@virginia.edu)</p>
+        <p class="mt-1 text-sm opacity-80">Deadline: November 23, 2025, 08:00 PM</p>
+    </header>
+    
+  <div class="max-w-4xl mx-auto py-12 px-6">
+    <div class="bg-white shadow-lg rounded-2xl p-8">
+      
+      <h1 class="text-3xl font-bold text-center text-blue-700 mb-6">
+        🏆 Model Submission Instructions
+      </h1>
+
+      <!-- Step 1 -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Step 1: Register</h2>
+        <p class="mb-2">
+          Go to the <a href="/register-page" class="text-blue-600 font-bold underline">Registration Page</a> and enter your Computing ID.
+        </p>
+        <p class="mt-2">
+          ✅ You will receive your <span class="font-bold text-green-600">token</span>. Save it securely — you need it for all submissions.
+        </p>
+      </section>
+
+      <!-- Step 2 -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Step 2: Train and Save Your Model</h2>
+        <ol class="list-decimal list-inside space-y-2 text-gray-800 mb-4">
+          <li>
+            <span class="font-semibold">Train your model as usual.</span>
+          </li>
+          <li>
+            <span class="font-semibold">Switch the model to evaluation mode:</span>
+            <pre class="bg-gray-900 text-green-400 p-3 rounded mb-2 overflow-x-auto">model.eval()</pre>
+          </li>
+          <li>
+            <span class="font-semibold">Convert your trained model to TorchScript:</span>
+            <pre class="bg-gray-900 text-green-400 p-3 rounded mb-2 overflow-x-auto">scripted_model = torch.jit.script(model)</pre>
+          </li>
+          <li>
+            <span class="font-semibold">Save the scripted model as a single file:</span>
+            <pre class="bg-gray-900 text-green-400 p-3 rounded mb-2 overflow-x-auto">
+model_path = "model_scripted.pt"
+scripted_model.save(model_path)
+print(f"Model saved to {model_path}")
+            </pre>
+          </li>
+        </ol>
+        <p class="mb-2">Your model is now ready for submission!</p>
+      </section>
+
+      <!-- Step 3 -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Step 3: Submit the Model</h2>
+        <p class="mb-2">
+          Use your token to submit your model file. You may submit only <span class="font-bold text-red-500">once per 15 minutes</span>.
+        </p>
+
+        <h3 class="text-lg font-semibold mt-4 mb-2 text-gray-800">Python Submission Function Example</h3>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+def submit_model(token: str, model_path: str, server_url="http://hadi.cs.virginia.edu:9000"):
+    with open(model_path, "rb") as f:
+        files = {"file": f}
+        data = {"token": token}
+        response = requests.post(f"{server_url}/submit", data=data, files=files)
+        resp_json = response.json()
+        if "message" in resp_json:
+            print(f"✅ {resp_json['message']}")
+        else:
+            print(f"❌ Submission failed: {resp_json.get('error')}")
+
+
+# Replace with your team token
+my_token = "Your_token_here"
+file_name = "model.pth"
+submit_model(my_token, file_name)
+        </pre>
+        <p class="mb-2">Replace <code>my_token</code> with your team token and <code>model_path</code> with your saved model's path. This function will print the server response after you submit.</p>
+
+        <p class="mt-2">ℹ️ If you submit too soon, you’ll get an error about the time limit.</p>
+      </section>
+
+      <!-- Step 4 -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Step 4: Check Submission Status</h2>
+        <p class="mb-2">
+          You can check the status of <span class="font-bold">all your attempts</span> (scores and times). If a submission is not finished, the status will be <span class="italic">pending</span>.
+        </p>
+        <h3 class="text-lg font-semibold mt-4 mb-2 text-gray-800">Python Status Check Example</h3>
+        <pre class="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto mb-4">
+def check_submission_status(my_token):
+    url = f"http://hadi.cs.virginia.edu:9000/submission-status/{my_token}"
+    response = requests.get(url)
+
+    if response.status_code != 200:
+        print(f"❌ Error {response.status_code}: {response.text}")
+        return
+
+    attempts = response.json()
+    for a in attempts:
+        model_size = f"{a['model_size']:.4f}" if isinstance(a['model_size'], (float, int)) else "None "
+
+        print(f"Attempt {a['attempt']}: Model size={model_size}, "
+              f"Submitted at={a['submitted_at']}, Status={a['status']}")
+    if attempts and attempts[-1]['status'].lower() == "broken file":
+        print("⚠️ Your model on the server is broken!")
+
+# Example usage:
+check_submission_status(my_token)
+        </pre>
+        <p class="mb-2">Replace <code>my_token</code> with your team token. This script prints all your submission attempts and timestamps.</p>
+
+      </section>
+
+     
+<section class="mt-8">
+  <h3 class="text-xl font-semibold text-indigo-800">Model Architecture Requirements</h3>
+  Kindly ensure your autoencoder model adheres to the following specifications:
+  <ul class="list-disc pl-6 mt-2 text-slate-700 space-y-1">
+    <li><b>Input to Encoder:</b> A full image tensor <code>x</code> of shape <code>B × C × 256 × 256</code> (C=3 RGB).</li>
+    <li><b>Encoder (conv stack → bottleneck):</b> Use convolutional blocks to downsample spatially; then <i>flatten</i> and apply a <code>Linear</code> layer to produce the latent code <code>z</code> of shape <code>B × latent_dim</code>.</li>
+    <li><b>Latent Dimension:</b> <code>latent_dim</code> is a single integer representing the size of the bottleneck vector. Lower is better for compression.</li>
+    <li><b>Decoder (bottleneck → conv transpose stack):</b> Map <code>z</code> through a <code>Linear</code> layer, <i>reshape</i> to a feature map, then use transposed convolutions / upsampling convs to reconstruct.</li>
+    <li><b>Output of Decoder:</b> Reconstructed image <code>ŷ</code> of shape <code>B × C × 256 × 256</code> with values in <code>[0,1]</code> (use <code>Sigmoid</code> at the end).</li>
+    <li><b>What to submit:</b> A scripted model in the same spirit as the starter (<code>Enc</code>, <code>Dec</code>, wrapped by <code>AE</code>), saved via <code>torch.jit.script(model)</code> → <code>model_ts.pt</code>.</li>
+  </ul>
+</section>
+
+<section class="mt-6">
+  <h4 class="text-lg font-semibold text-indigo-800">Submission Must-Haves</h4>
+  <ul class="list-disc pl-6 mt-2 text-slate-700 space-y-2">
+    <li><b>TorchScript artifact:</b> Submit a <code>.pt</code> or <code>.pth</code> produced via <code>torch.jit.script(...)</code></li>
+
+    <li><b>Input → Output shapes (RGB required):</b>
+      <ul class="list-disc pl-6 mt-1 space-y-1">
+        <li><b>Input:</b> tensor <code>[B, C, 256, 256]</code> with <code>C = 3</code> (RGB, values in <code>[0,1]</code>).</li>
+        <li>Latent vector: Shape B X latent_dim</li>
+        <li><b>Output:</b> same shape as input <code>[B, 3, 256, 256]</code> (use a final activation so outputs are in <code>[0,1]</code>).</li>
+      </ul>
+    </li>
+
+    <!-- <li><b>Discoverable latent size (for the “latent dimension” metric):</b> expose one of:
+      <ul class="list-disc pl-6 mt-1 space-y-1">
+        <li>top-level attribute <code>latent_dim</code>, or</li>
+        <li><code>model.enc.latent_dim</code>, or</li>
+        <li><code>model.enc.fc.out_features</code>.</li>
+      </ul>
+      <div class="text-sm text-slate-600 mt-1">The grader checks these in this order.</div>
+    </li> -->
+
+    <li><b>Deterministic eval:</b> <code>model.eval()</code> should work</li>
+
+    <li><b>Artifact size limit:</b> <code>&le; 23&nbsp;MB</code> for the TorchScript file.</li>
+  </ul>
+</section>
+
+
+      <!-- Footer -->
+      <div class="text-center mt-10">
+        <p class="text-sm text-gray-500">💡 Tip: Save your token securely, you’ll need it for all requests.</p>
+      </div>
+
+      <!-- Leaderboard Section -->
+      <section class="mb-10">
+        <p class="text-center">
+          🥇 You can see the live leaderboard here:<br>
+          <a href="http://hadi.cs.virginia.edu:9000/leaderboard-hw2" class="text-purple-600 font-bold underline break-all">http://hadi.cs.virginia.edu:9000/leaderboard</a>
+        </p>
+      </section>
+
+      <!-- bg-slate-100 p-4 rounded text-sm overflow-x-auto" -->
+ <!-- Notes -->
+      <section class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-900 mb-3">Rules & Constraints</h2>
+        <ul class="list-disc list-inside space-y-1">
+          <li>🔑 Each student must register once to get a unique token.</li>
+          <li>⏱ You can submit only once per 15 minutes.</li>
+          <li>📊 All attempts are recorded with timestamp.</li>
+          <li>⌛ If your model is still running, status will show as <code>pending</code>.</li>
+        </ul>
+      </section>
+      <!-- submission & status instructions -->
+      <section class="mt-10 bg-white rounded-2xl shadow p-6">
+        <h3 class="text-xl font-semibold text-indigo-800 mb-3">Starter Kit & Inspiration</h3>
+        <ol class="list-decimal pl-6 text-slate-700 space-y-2">
+          <li><strong>Register</strong> at <a href="/register-page" class="text-indigo-600 underline">/register-page</a> to get your team token.</li>
+          <li><strong>Export</strong> your model as TorchScript (.pt). Make sure model file &lt; 23 MB</code>.</li>
+          <li><strong>Submit</strong> using the submission function.</li>
+          <li><strong>Download Starter code:</strong>
+            Click the link to download the notebook for homework 2,
+            <a href="http://hadi.cs.virginia.edu:9000/download/starter-hw2" class="text-indigo-600 underline">Full Code</a>.
+          </li>
+          
+        </ol>
+        <p class="mt-4 text-emerald-700 font-semibold">
+          <span class="text-pink-700">IDEA:</span> Monitor your submission progress to spot trends. If your model improves, ask yourself why — can you explain it to others?
+        </p>
+      </section>
+
+
+    </div>
+  </div>
+</body>
+</html>

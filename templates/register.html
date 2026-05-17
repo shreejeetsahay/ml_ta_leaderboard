@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CS 4774 Registration / Retrieve Token</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-700 min-h-screen flex flex-col items-center font-sans py-10">
+    <header class="mt-8 mb-6 text-center text-white">
+        <h1 class="text-4xl font-bold drop-shadow-lg">🏆 CS 4774 Machine Learning 🏆</h1>
+        <p class="mt-1 text-lg opacity-90">University of Virginia - Computer Science</p>
+        <p class="mt-1 text-sm opacity-80">Instructor: Hadi Daneshmand</p>
+        <p class="mt-1 text-sm opacity-80">Course: TuTh 11:00am - 12:15pm</p>
+    </header>
+
+
+    <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-10 w-full max-w-lg mb-8">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6 drop-shadow-md">CS 4774 Registration</h1>
+        <p class="text-center text-gray-600 mb-8">University of Virginia - Computer Science | TA: Shreejeet Sahay (rge9ts@virginia.edu)</p>
+
+        <!-- Registration Form -->
+        <form id="registerForm" class="space-y-5">
+            <div>
+                <label for="team_name" class="block text-gray-700 font-semibold mb-2">Team Name</label>
+                <input type="text" id="team_name" name="team_name" placeholder="Your Team Name"
+                    class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+            </div>
+            <div>
+                <label for="computing_id" class="block text-gray-700 font-semibold mb-2">Student Computing ID</label>
+                <input type="text" id="computing_id" name="computing_id" placeholder="e.g., jrp5td"
+                    class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+            </div>
+            <button type="submit"
+                class="w-full bg-indigo-600 text-white font-bold py-3 rounded-2xl hover:bg-indigo-700 transition-colors duration-200">
+                Register
+            </button>
+        </form>
+
+        <p id="registerMsg" class="mt-5 text-center font-semibold text-red-600"></p>
+    </div>
+
+    <!-- Token Retrieval Section -->
+    <div class="bg-white/95 backdrop-blur-sm rounded-3xl shadow-2xl p-10 w-full max-w-lg">
+        <h2 class="text-2xl font-bold text-center text-indigo-700 mb-6 drop-shadow-md">Forgot Your Token?</h2>
+        <p class="text-center text-gray-600 mb-5">Enter your computing ID to retrieve your token.</p>
+
+        <form id="retrieveForm" class="space-y-5">
+            <div>
+                <label for="retrieve_id" class="block text-gray-700 font-semibold mb-2">Student Computing ID</label>
+                <input type="text" id="retrieve_id" name="retrieve_id" placeholder="e.g., jrp5td"
+                    class="w-full p-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-400" required>
+            </div>
+            <button type="submit"
+                class="w-full bg-green-600 text-white font-bold py-3 rounded-2xl hover:bg-green-700 transition-colors duration-200">
+                Retrieve Token
+            </button>
+        </form>
+
+        <p id="retrieveMsg" class="mt-5 text-center font-semibold text-red-600"></p>
+    </div>
+
+    <!-- JS for AJAX -->
+    <script>
+        const registerForm = document.getElementById("registerForm");
+        const registerMsg = document.getElementById("registerMsg");
+
+        registerForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const team_name = document.getElementById("team_name").value.trim();
+            const computing_id = document.getElementById("computing_id").value.trim();
+
+            const res = await fetch("/register-web", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ team_name, computing_id })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                registerMsg.classList.remove("text-red-600");
+                registerMsg.classList.add("text-green-600");
+                registerMsg.innerText = `✅ Registered! Your token: ${data.token}`;
+            } else {
+                registerMsg.classList.remove("text-green-600");
+                registerMsg.classList.add("text-red-600");
+                registerMsg.innerText = `❌ Error: ${data.error}`;
+            }
+        });
+
+        const retrieveForm = document.getElementById("retrieveForm");
+        const retrieveMsg = document.getElementById("retrieveMsg");
+
+        retrieveForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const computing_id = document.getElementById("retrieve_id").value.trim();
+
+            const res = await fetch("/retrieve-token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ computing_id })
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                retrieveMsg.classList.remove("text-red-600");
+                retrieveMsg.classList.add("text-green-600");
+                retrieveMsg.innerText = `✅ Your token: ${data.token}`;
+            } else {
+                retrieveMsg.classList.remove("text-green-600");
+                retrieveMsg.classList.add("text-red-600");
+                retrieveMsg.innerText = `❌ Error: ${data.error}`;
+            }
+        });
+    </script>
+
+</body>
+</html>

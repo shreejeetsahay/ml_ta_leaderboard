@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CS4774 — Homework 2 · Traffic Light Autoencoder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-cyan-500 via-sky-600 to-blue-700 min-h-screen flex flex-col items-center font-sans py-10">
+  <div class="max-w-6xl mx-auto py-12 px-6">
+
+    <header class="mt-8 mb-6 text-center text-white">
+        <h1 class="text-4xl font-bold drop-shadow-lg">🏆 CS 4774 Machine Learning 🏆</h1>
+        <p class="mt-1 text-lg opacity-90">University of Virginia - Computer Science</p>
+        <p class="mt-2 text-lg opacity-90">Homework 2 — <span class="text-yellow-400"><strong>Traffic Light Autoencoder</strong></span></p>
+        <p class="mt-1 text-sm opacity-80">Instructor: Dr. Hadi Daneshmand | TA: Shreejeet Sahay (rge9ts@virginia.edu)</p>
+        <p class="mt-1 text-sm opacity-80">Deadline: November 23, 2025, 08:00 PM</p>
+    </header>
+
+    <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Left column: assignment text -->
+      <section class="lg:col-span-2 bg-white rounded-2xl shadow p-6">
+        <h1 class="text-2xl font-semibold text-indigo-700 mb-3">Welcome to your second ML adventure!</h1>
+        <h3 class="text-2xl font-semibold text-indigo-800 mb-3">Traffic Light Autoencoder</h3>
+        <p class="text-slate-700 leading-relaxed">
+          In this homework, you will design and train a convolutional autoencoder to compress and reconstruct traffic light images provided from real-world driving scenarios.
+        </p>
+
+        <p class="text-slate-700 leading-relaxed mt-4">
+          <span class="text-emerald-700 font-bold">Imagine this:</span> You're developing an AI system for autonomous vehicles that need to quickly and efficiently process visual data from traffic lights.
+          <br><br>
+          Your task is to build a compact autoencoder model that can compress high-resolution images of traffic lights into a small latent representation and then accurately reconstruct the original images from this compressed form.
+          <br><br>
+          <span class="text-sky-700 font-semibold">Here's the exciting part:</span> you'll wrestle with tradeoffs between model size, overall reconstruction quality, and quality of reconstruction around the traffic light regions, and will be competing on the leaderboard.
+          <br><br>
+          <span class="text-pink-700 font-semibold">Ask yourself:</span> How small can I make my model while still achieving high-quality reconstructions?
+        </p>
+
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold text-indigo-800">The Dataset: Your Playground</h3>
+          <p class="text-slate-600 mt-2">
+            We provide a dataset containing 14034 images captured by a roof-mounted stereo camera on a moving vehicle, recorded under various lighting and weather conditions during the day. In this version, only the left-camera view is utilized, so stereo information is not currently used.
+        </div>
+
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold text-indigo-800">Your Mission</h3>
+          <ul class="list-disc pl-6 mt-2 text-slate-700 space-y-1">
+            <li>Build a model that can reconstruct these images. Please make sure that you DO NOT change the IMG_SIZE. Please keep it as 256, and use RGB channel only.</li>
+            <li>Model must be <span class="font-semibold text-red-600">&lt; 23 MB</span> on disk — think small, dream big!</li>
+          </ul>
+        <!-- <div class="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+        <p class="text-green-700 font-semibold mb-2">
+            Challenge yourself: Focus on reconstructing traffic light regions accurately while keeping your model compact!
+        </p>
+        <ul class="list-disc list-inside text-green-800 text-sm space-y-1">
+            
+        </ul>
+        </div> -->
+
+        </div>
+
+        <div class="mt-8">
+  <h3 class="text-xl font-semibold text-indigo-800">How Will You Be Judged?</h3>
+  <ul class="list-disc pl-6 mt-2 text-slate-700 space-y-2">
+    <li>
+      <b>Metrics tracked:</b> 
+      <ul class="list-disc pl-6 mt-1 space-y-1">
+        <li><b>Latent Dimension (LD)</b> — size of the bottleneck vector (lower raw value is better).</li>
+        <li><b>Full MSE</b> — reconstruction MSE over the entire 256×256 frame (lower is better).</li>
+        <li><b>ROI-MSE</b> — MSE computed only over <i>Region of Interest</i> pixels (traffic-light area), after resizing boxes to 256×256 and masking to the area. (lower is better)</li>
+        <li><b>Model Size (MB)</b> — uploaded .pt file size (lower is better; hard cap &lt; 23 MB).</li>
+      </ul>
+    </li>
+
+    <li>
+      <b>Composite (Higher = Better):</b> We convert each “lower-is-better” metric to a normalized score in [0,1] using an inverse scaling
+      <code> </code>score = 1 − (x − min) / (max − min)</code>, then combine:
+      <div class="mt-1 rounded bg-slate-50 border p-2 text-sm">
+        Weighted Score = 0.40·LD′ + 0.35·FullMSE′ + 0.20·ROI′ + 0.05·Size′
+      </div>
+      (LD′, FullMSE′, ROI′, Size′ are the inverted, normalized scores; 1.0 = best, 0.0 = worst.)
+      Normalization bounds- latent_dim: [8, 256]; full_mse: [5e-4, 5e-2]; roi_mse: [2e-3, 8e-2]; model_size (MB): [1.0, 23.0]
+    </li>
+
+    <li>
+      <b>Sorting & Tie-breakers:</b> Leaderboards sort by <b>Weighted Score (desc)</b>. Ties are broken by, in order:
+      1) lower LD, 2) lower Full MSE, 3) lower ROI-MSE, 4) lower model size, 5) earlier submission time.
+    </li>
+
+ 
+
+    <li><b>Submission policy:</b> max 1 submission per team every 15 minutes; file size must be &lt; 23 MB.</li>
+  </ul>
+</div>
+
+
+        <h3 class="text-xl font-semibold text-indigo-800">Leaderboards & Evaluation</h3>
+        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <p class="text-blue-800 text-sm mb-2">
+            In this homework, your submissions are evaluated on <strong>the public leaderboard</strong>.<strong>Neither dataset is directly accessible</strong>. 
+        </p>
+        <ul class="list-disc list-inside text-blue-800 text-sm space-y-1 mb-2">
+            <li><strong><a href="http://hadi.cs.virginia.edu:9000/leaderboard-hw2" target="_blank" class="underline hover:text-blue-600">Public leaderboard</a></strong> – Your model is evaluated on the entire training dataset, and you can see the results after submission.</li>
+        </ul>
+        <p class="text-blue-800 text-sm">
+            <strong>Key points:</strong><br>
+            - Train your model only on the provided training data.<br>
+            - You receive feedback from the public leaderboard after submission.
+        </p>
+        <!-- <p class="text-blue-800 text-sm mt-2">
+            This setup ensures the competition rewards <strong>models that truly learn and generalize</strong>, not models that exploit evaluation datasets.
+        </p> -->
+        </div>
+
+
+
+        <div class="mt-8">
+          <h3 class="text-xl font-semibold text-indigo-800">Starter Kit & Inspiration</h3>
+          <p class="text-slate-600 mt-2">
+            We provide instructions, a baseline model, and tutorials to get you started. Click the links below to explore:
+            <a href="http://hadi.cs.virginia.edu:9000/instructions-hw2" class="text-indigo-600 underline">http://hadi.cs.virginia.edu:9000/instructions-hw2</a>
+          </p>
+        </div>
+      </section>
+
+
+
+
+      <!-- Right column: quick actions -->
+      <aside class="bg-white rounded-2xl shadow p-6">
+
+        
+
+
+        <h3 class="text-lg font-semibold text-slate-800 mb-3">Quick Actions</h3>
+
+        <div class="space-y-3">
+          <a href="/leaderboard-hw2" class="block w-full text-center bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700">Leaderboard-HW2</a>
+          <a href="/register-page" class="block w-full text-center bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Register (get token)</a>
+          <a href="/download/train-dataset-hw2" class="block w-full text-center bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-black text-sm">Download Training dataset HW2</a>
+          <a href="/instructions-hw2" class="block w-full text-center bg-teal-800 text-white px-4 py-2 rounded-lg hover:bg-black text-sm">Instructions & Starter Kit</a>
+        </div>
+
+        <div class="mt-4 text-xs text-slate-500">
+          <p>Questions? Email TA: <a class="text-indigo-600" href="mailto:rge9ts@virginia.edu">rge9ts@virginia.edu</a></p>
+        </div>
+      </aside>
+    </main>
+
+
+
+    <!-- footer -->
+    <footer class="mt-8 mb-6 text-center text-white">
+      <p class="text-xl font-semibold text-yellow-400">Good luck, future ML pioneers!</p>
+    </footer>
+  </div>
+</body>
+</html>
