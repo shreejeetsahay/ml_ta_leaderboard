@@ -1,4 +1,4 @@
-# CS 4774 Homework 2 Leaderboard
+# Traffic Light Autoencoder Competition Leaderboard
 
 Flask web application for the **Traffic Light Autoencoder** competition (CS 4774 Machine Learning, University of Virginia). Teams register, submit TorchScript autoencoder models, and are ranked on reconstruction quality and compression metrics evaluated on a held-out traffic-light dataset.
 
